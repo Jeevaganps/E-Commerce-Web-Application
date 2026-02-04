@@ -13,6 +13,10 @@ Developed a full-stack E-Commerce web application using Django and Node.js with 
 - Django (specify which)
 - Database (MySQL)
 - Payment Gateway (Stripe)
+- Node.js
+- HTML
+- CSS
+- JavaScript
 
 ## Installation
 [Installation steps]
