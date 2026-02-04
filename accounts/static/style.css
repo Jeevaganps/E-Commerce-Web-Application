@@ -1,0 +1,70 @@
+  /** {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Header
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: black;
+  color: red;
+  padding: 15px 50px;
+}
+header .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+header nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+header nav ul li a {
+  color: red;
+  text-decoration: none;
+}
+header nav ul li a:hover {
+  color: orange;
+}
+
+ /* Dropdown styles 
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 35px;
+      left: 0;
+      background-color: red;
+      min-width: 180px;
+      border-radius: 5px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      color: goldenrod;
+      padding: 10px 15px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: red;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* Username text in dropdown */
+    /*.user-name {
+      padding: 10px 15px;
+      background-color:   red;
+      font-weight: bold;
+      color: black;
+      border-bottom: 1px solid red;
+    }

@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .cart-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .cart-header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2c3e50;
+    }
+
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .cart-table th {
+        background: #34495e;
+        color: white;
+        padding: 15px 20px;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .cart-table td {
+        padding: 15px 20px;
+        border-bottom: 1px solid whitesmoke;
+    }
+
+    .cart-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .cart-table tr:hover {
+        background-color: white;
+    }
+
+    /* Delete button styles */
+    .delete-btn {
+        background: red;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .delete-btn:hover {
+        background: red;
+        transform: translateY(-1px);
+    }
+
+    .delete-form {
+        margin: 0;
+    }
+
+    .total-section {
+        text-align: right;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .total-label {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin-right: 10px;
+    }
+
+    .total-amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: red;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: orange;
+        color: white;
+    }
+
+    .btn-primary {
+        background: blue;
+        color: white;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #7f8c8d;
+    }
+
+    .empty-state h2 {
+        margin-bottom: 20px;
+        color: #bdc3c7;
+    }
+
+    .btn-shopping {
+        background: #27ae60;
+        color: white;
+        padding: 12px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+        margin-top: 20px;
+    }
+
+    /* Messages styling */
+    .messages {
+        margin-bottom: 20px;
+    }
+
+    .alert {
+        padding: 12px 20px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        border-left: 4px solid;
+    }
+
+    .alert-success {
+        background-color: #d5f4e6;
+        color: #27ae60;
+        border-color: #27ae60;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .cart-container {
+            padding: 20px 10px;
+        }
+
+        .cart-table {
+            font-size: 0.9rem;
+        }
+
+        .cart-table th,
+        .cart-table td {
+            padding: 12px 8px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            text-align: center;
+        }
+
+        .delete-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<div class="cart-container">
+    <div class="cart-header">
+        <h1>Your Cart</h1>
+    </div>
+
+    <!-- Display Messages 
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}-->
+
+    {% if cart_items %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₹{{ item.product.price }}</td>
+                <td><strong>₹{{ item.get_total_price }}</strong></td>
+                <td>
+                    <form method="post" action="{% url 'remove_from_cart' item.id %}" class="delete-form">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn" onclick="return confirm('Remove this item from cart?')">
+                            Remove
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <span class="total-label">Total Price:</span>
+        <span class="total-amount">₹{{ total_price }}</span>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{% url 'home' %}" class="btn btn-secondary">Continue Shopping</a>
+        <a href="{% url 'checkout' %}" class="btn btn-primary">Checkout</a>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <h2>Your cart is empty</h2>
+        <p>No products added yet!</p>
+        <a href="{% url 'home' %}" class="btn-shopping">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

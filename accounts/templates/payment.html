@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --accent: goldenrod;
+            --muted: #6b7280;
+            --bg: #f8fafc
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: #111;
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh
+        }
+
+        .card {
+            width: 100%;
+            max-width: 760px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 30px rgba(15, 23, 42, 0.08);
+            padding: 22px
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 12px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px
+        }
+
+        @media (max-width:820px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .methods {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 8px
+        }
+
+        .method-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer
+        }
+
+        .method-btn input {
+            margin-right: 8px
+        }
+
+        .method-btn.active {
+            background: #fff;
+            border-color: #e6e9ff
+        }
+
+        form {
+            margin-top: 12px
+        }
+
+        .field {
+            margin-bottom: 12px
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px
+        }
+
+        input[type=text],
+        input[type=tel],
+        input[type=number],
+        input[type=email],
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e6e7eb;
+            font-size: 14px
+        }
+
+        .row {
+            display: flex;
+            gap: 10px
+        }
+
+        .row .field {
+            flex: 1
+        }
+
+        .summary {
+            background: #f9fafb;
+            padding: 14px;
+            border-radius: 10px
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            cursor: pointer
+        }
+
+        .btn.secondary {
+            background: #fff;
+            color: var(--accent);
+            border: 1px solid #e6e7eb
+        }
+
+        .note {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .success {
+            padding: 12px;
+            border-radius: 8px;
+            background: #ecfdf5;
+            color: #065f46;
+            margin-top: 12px
+        }
+
+        .error {
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff1f2;
+            color: #9f1239;
+            margin-top: 12px
+        }
+
+        .small {
+            font-size: 13px;
+            color: var(--muted)
+        }
+    </style>
+</head>
+
+<body>
+    <main class="card" role="main">
+        <h1>Complete your payment</h1>
+
+        <div class="grid">
+            <section>
+
+                <form method="post" id="paymentForm" novalidate>
+                    {% csrf_token %}
+
+                    <div class="methods" role="tablist" aria-label="Payment methods">
+                        <div class="method-btn active" data-method="card" role="tab" aria-selected="true">
+                            <input type="radio" name="payment_method" value="card" checked />Card
+                        </div>
+
+                        <div class="method-btn" data-method="upi" role="tab" aria-selected="false">
+                            <input type="radio" name="payment_method" value="upi" />UPI
+                        </div>
+
+                        <div class="method-btn" data-method="cash" role="tab" aria-selected="false">
+                            <input type="radio" name="payment_method" value="cod" />Cash on Delivery
+                        </div>
+                    </div>
+
+                    <!-- CARD -->
+                    <div class="method" data-for="card">
+                        <div class="field">
+                            <label>Name on card</label>
+                            <input type="text" name="card_name" placeholder="Full name" />
+                        </div>
+
+                        <div class="field">
+                            <label>Card details</label>
+                            <div id="card-element" style="padding:10px;border:1px solid #e6e7eb;border-radius:8px"></div>
+                        </div>
+                    </div>                     
+
+                    <!-- UPI -->
+                    <div class="method" data-for="upi" style="display:none">
+                        <div class="field">
+                            <label>UPI ID</label>
+                            <input type="text" name="upi_id" id="upi-id" placeholder="yourid@upi">
+                        </div>
+                    </div>
+
+                    <!-- CASH -->
+                    <div class="method" data-for="cash" style="display:none">
+                        <div class="field">
+                            <label>Cash on Delivery</label>
+                            <div class="small">You will pay during delivery.</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:14px">
+                        <button type="submit" class="btn">Pay now</button>
+                        <button type="button" class="btn secondary" id="cancelBtn">Cancel</button>
+                    </div>
+
+                    <div id="messageArea"></div>
+
+                </form>
+            </section>
+
+            <aside>
+                <div class="summary">
+                    <strong>Order summary</strong>
+                
+                    <div style="margin-top:10px;display:flex;justify-content:space-between">
+                        <span>Items</span><span>₹{{total_amount}}</span>
+                    </div>
+                
+                    <div style="margin-top:8px;display:flex;justify-content:space-between">
+                        <span>Shipping</span><span>₹{{ shipping_amount }}</span>
+                    </div>
+                
+                    <hr style="margin:12px 0;border:none;border-top:1px dashed #e6e7eb" />
+                
+                    <div style="display:flex;justify-content:space-between;font-weight:600">
+                        <span>Total</span><span>₹{{ grand_total }}</span>
+                    </div>
+                </div>
+
+                    <br>
+                    <strong>Deliver To:</strong>
+
+                    <p class="note" style="margin-top:10px">
+                        {{ selected_address.full_name }}<br>
+                        {{ selected_address.phone }}<br>
+                        {{ selected_address.address_line }},
+                        {{ selected_address.city }},
+                        {{ selected_address.state }} - {{ selected_address.pincode }}
+                    </p>
+            </aside>
+    </main>
+    
+    <script>
+        let activeMethod = "card";
+
+        const buttons = document.querySelectorAll(".method-btn");
+        const sections = document.querySelectorAll(".method");
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+
+                // Remove active class from all
+                buttons.forEach(b => b.classList.remove("active"));
+
+                // Set clicked one as active
+                btn.classList.add("active");
+
+                // Set selected method
+                activeMethod = btn.dataset.method;
+
+                // Show / hide method sections
+                sections.forEach(sec => {
+                    sec.style.display = (sec.dataset.for === activeMethod) ? "block" : "none";
+                });
+            });
+        });
+    </script>
+
+
+
+    <script>
+        // Method switching
+        //const methodButtons = document.querySelectorAll('.method-btn');
+        //const methods = document.querySelectorAll('.method');
+        //let activeMethod = 'card';
+
+        //methodButtons.forEach(btn => {
+          //  btn.addEventListener('click', () => {
+            //    methodButtons.forEach(b => b.classList.remove('active'));
+              //  btn.classList.add('active');
+                //activeMethod = btn.dataset.method;
+
+              //  methods.forEach(m => {
+             //       m.style.display = m.dataset.for === activeMethod ? 'block' : 'none';
+           //     });
+           // });
+       // });
+    </script>
+    
+    <script>
+    const stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+
+    const elements = stripe.elements();
+    const card = elements.create("card");
+    card.mount("#card-element");
+
+    const form = document.getElementById("paymentForm");
+
+    form.addEventListener("submit", async (e) => {
+    e.preventDefault();  // STOP normal HTML POST
+    console.log("Selected method:", activeMethod);
+
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = true;
+
+    // For all payment methods, redirect to order placed page
+    if (activeMethod === "cash" || activeMethod === "upi") {
+        // For cash and UPI, redirect directly
+        window.location.href = "/order-placed/";
+        return;
+    }
+
+    // CARD PAYMENT (Stripe)
+    if (activeMethod === "card") {
+        const { error, paymentIntent } = await stripe.confirmCardPayment(
+            "{{ clientSecret }}",
+            {
+                payment_method: {
+                    card: card
+                }
+            }
+        );
+
+        if (error) {
+            document.getElementById("messageArea").innerHTML =
+                `<div class="error">${error.message}</div>`;
+            btn.disabled = false;
+            return;
+        }
+
+        if (paymentIntent.status === "succeeded") {
+            window.location.href = "/order-placed/";
+        }
+    }
+});
+</script>
+
+
+</body>
+
+</html>

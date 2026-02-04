@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+
+.category-link {
+    text-decoration: none;
+    color: black;
+    font-weight: normal;
+}
+
+.category-link:hover {
+    color: #444;
+}
+
+/* ---- PRODUCT CARD ---- */
+.product-card {
+    text-align: center;
+    border: 1px solid #ddd;
+    padding: 20px;
+    width: 200px;
+    background: #fff;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+}
+
+.product-card img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
+.filter-sort-container {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.filter-sort-container select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.filter-sort-container select:hover {
+    border-color: #000;
+    transform: translateY(-2px);
+}
+
+.filter-sort-container form {
+    display: inline-block;
+}
+
+
+</style>
+<div class="filter-sort-container">
+
+    <!-- Sort -->
+    <form method="GET" class="sort-form">
+        <select name="sort" onchange="this.form.submit()">
+            <option value="">Sort By</option>
+            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First</option>
+            <option value="oldest" {% if request.GET.sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+        </select>
+    </form>
+
+    <!-- Filter -->
+    <form method="GET" class="filter-form">
+        <select name="filter" onchange="this.form.submit()">
+            <option value="">Filter</option>
+            <option value="in_stock" {% if request.GET.filter == 'in_stock' %}selected{% endif %}>In Stock</option>
+            <option value="out_stock" {% if request.GET.filter == 'out_stock' %}selected{% endif %}>Out of Stock</option>
+        </select>
+    </form>
+
+</div>
+
+<h2>Products</h2>
+
+<div style="display:flex; gap:20px; flex-wrap:wrap;">
+    {% for product in products %}
+    <div class="product-card">
+
+        <a href="{% url 'product_detail' product.id %}" class="category-link">
+            <h4>{{ product.name }}</h4>
+        </a>
+
+        {% if product.image %}
+        <a href="{% url 'product_detail' product.id %}">
+            <img src="{{ product.image.url }}">
+        </a>
+        {% endif %}
+
+        <p>₹ {{ product.price }}</p>
+    </div>
+    {% empty %}
+        <p>No products in this category.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

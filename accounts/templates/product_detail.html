@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ product.name }}
+{% endblock %}
+
+{% block content %}
+<!--<head>
+    <title>{{ product.name }}</title>-->
+<style>
+    .container {
+        width: 80%;
+        margin: auto;
+        display: flex;
+        /*flex use side by side image and details instead of top-bottom*/
+        align-items: flex-start;
+        /*align items at the top*/
+        gap: 30px;
+        /*space between image and details*/
+        padding: 20px;
+    }
+
+    .image-box img {
+        width: 350px;
+        height: auto;
+        border-radius: 8px;
+        /*Smooth rounded edges*/
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        /*Soft shadow = premium look*/
+    }
+
+    .details h1 {
+        margin-bottom: 15px;
+    }
+
+    .price {
+        font-size: 24px;
+        font-weight: bold;
+        color: green;
+        margin-bottom: 15px;
+    }
+
+    a {
+        text-decoration: none;
+        color: blue;
+    }
+
+    /*cart controls styles*/
+
+    .cart-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .qty-btn {
+        background-color: white;
+        border: 1px solid whitesmoke;
+        border-radius: 5px;
+        padding: 6px 12px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    #quantity {
+        width: 40px;
+        text-align: center;
+        font-size: 16px;
+        border: 1px solid whitesmoke;
+        border-radius: 5px;
+        height: 35px;
+    }
+
+    .add-btn {
+        background-color: goldenrod;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .add-btn:hover {
+        background-color: burlywood;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    /* Hide number input spinners */
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+</style>
+<!--</head>-->
+
+<body>
+
+    <div class="container">
+        
+
+        <div class="image-box">
+            {% if product.image %}
+            
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% endif %}
+        </div>
+
+        <div class="details">
+            <h3>{{ product.brand }}</h3>
+            <h1>{{ product.name }}</h1>
+            <!--<p class="price">₹ {{ product.price }}</p>-->
+            <!-- ❤️ Favourite Toggle -->
+            {% if is_favourite %}
+            <form method="post" action="{% url 'remove_from_favourites' product.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 28px;
+                    color: red;
+                    margin-bottom: 10px;
+                ">
+                    ❤️
+                </button>
+            </form>
+            
+            {% else %}
+            <form method="post" action="{% url 'add_to_favourites' product.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 28px;
+                    color: #777;
+                    margin-bottom: 10px;
+                ">
+                    🤍
+                </button>
+            </form>
+            {% endif %}
+
+            <p>{{ product.description }}</p>
+            <br>
+
+            <p>
+                {% if product.discount_price %}
+                <del>₹{{ product.price }}</del>
+                <strong style="color:green;">₹{{ product.discount_price }} special discount price</strong>
+                {% else %}
+                <strong>₹{{ product.price }}</strong>
+                {% endif %}
+            </p>
+            {% if not product.is_active %}
+            <p style="color:red; font-weight:bold;">This product is currently unavailable.</p>
+            {% elif product.quantity == 0 %}
+            <p style="color:red;">Out of Stock</p>
+            {% endif %}
+            <br>
+
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_to_cart' product.id %}">
+                {% csrf_token %}
+                <div class="cart-controls">
+                    <label for="quantity">Quantity:</label>
+                    <button type="button" class="qty-btn" onclick="decreaseQuantity()">-</button>
+                    <input type="number" id="quantity" name="quantity" value="0" min="0" max="{{ product.quantity }}">
+                    <button type="button" class="qty-btn" onclick="increaseQuantity()">+</button>
+                    <button type="submit" class="add-btn">Add to Cart</button>
+                    <a href="{% url 'buy_now' product.id %}" class="add-btn">Buy Now</a>
+                </div>
+            </form>
+            {% else %}
+            <button class="add-btn" disabled>Out of Stock</button>
+            {% endif %}
+
+        </div>
+        <script>
+            function increaseQuantity() {
+                const quantityInput = document.getElementById('quantity');
+                let quantity = parseInt(quantityInput.value);
+                if (quantity < 10) {
+                    quantityInput.value = quantity + 1;
+                }
+            }
+
+            function decreaseQuantity() {
+                const quantityInput = document.getElementById('quantity');
+                let quantity = parseInt(quantityInput.value);
+                if (quantity > 1) {
+                    quantityInput.value = quantity - 1;
+                }
+            }
+        </script>
+
+</body>
+
+</html>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  /* Main wrapper */
+  .checkout-wrapper {
+      width: 80%;
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #222;
+  }
+
+  /* CART TABLE */
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+  }
+
+  table th {
+      background: #f3f3f3;
+      padding: 12px;
+      font-size: 16px;
+  }
+
+  table td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+  }
+
+  table tr:hover {
+      background: #fafafa;
+  }
+
+  /* Address boxes */
+  .address-item {
+      margin-bottom: 12px;
+      padding: 12px;
+      background: #f7f7f7;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      transition: 0.3s;
+  }
+
+  .address-item:hover {
+      background: whitesmoke;
+  }
+
+  #newAddressForm input,
+  #newAddressForm textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+  }
+
+  textarea {
+      min-height: 70px;
+      resize: none;
+  }
+
+  /* Payment Button (small centered) */
+  .add-btn {
+      width: 200px;
+      padding: 10px;
+      border: none;
+      display: block;
+      margin: 20px auto 0 auto;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+  }
+
+  .add-btn:hover {
+      background-color: goldenrod !important;
+  }
+</style>
+
+
+<div class="checkout-wrapper">
+
+<h2>Checkout</h2>
+
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Quantity</th>
+    <th>Price</th>
+  </tr>
+
+  {% for item in cart_items %}
+  <tr>
+    <td>{{ item.product.name }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>₹{{ item.product.discount_price|default:item.product.price }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<form method="post">
+  {% csrf_token %}
+  <h3>Select Address</h3>
+
+  {% if addresses %}
+    {% for addr in addresses %}
+      <div class="address-item">
+        <label>
+          <input type="radio" name="selected_address" value="{{ addr.id }}" required>
+          {{ addr.full_name }}, {{ addr.address_line }}, {{ addr.city }} - {{ addr.pincode }}
+        </label>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="address-item">
+    <label>
+      <input type="radio" name="selected_address" value="new" required>
+      Add New Address
+    </label>
+  </div>
+
+  <div id="newAddressForm" style="display:none;">
+    <h4>Enter New Address</h4>
+    <input type="text" name="full_name" placeholder="Full Name">
+    <input type="text" name="phone" placeholder="Phone">
+    <textarea name="address_line" placeholder="Address"></textarea>
+    <input type="text" name="city" placeholder="City">
+    <input type="text" name="state" placeholder="State">
+    <input type="text" name="pincode" placeholder="Pincode">
+  </div>
+
+  <button type="submit" class="add-btn" style="background-color:goldenrod;">Proceed to Payment</button>
+</form>
+
+</div>
+
+<script>
+document.querySelectorAll('input[name="selected_address"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    document.getElementById('newAddressForm').style.display = 
+      this.value === 'new' ? 'block' : 'none';
+  });
+});
+</script>
+
+{% endblock %}

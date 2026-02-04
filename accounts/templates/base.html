@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}QuickBasket{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+  
+    <style>
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #BDB76B !important;    /* THIS MAKES NAVBAR color */
+        color: black !important;
+        padding: 0px 50px;
+        height: 80px;
+}
+    header nav ul li a {
+    color: black !important;   /* change to any color */
+}
+
+header nav ul li a:hover {
+    color: whitesmoke !important;  /* hover color */
+}
+
+
+    /* Make this more specific to beat style.css */
+    header nav ul {
+        display: flex !important;
+        align-items: center !important;
+        list-style: none !important;
+        gap: 20px !important;
+        width: 100%;
+    }
+
+    /* Center search bar */
+    header nav ul .search-item {
+        flex-grow: 1 !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    /* BIG Search Bar */
+    header nav ul .search-form input {
+        padding: 10px 20px !important;
+        border: 1px solid red !important;
+        border-radius: 30px !important;
+        width: 350px !important;
+        font-size: 16px !important;
+        transition: 0.3s ease !important;
+    }
+
+    /* on focus */
+    header nav ul .search-form input:focus {
+        width: 450px !important;
+        border-color: goldenrod !important;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    main, .content, .profile-container, .address-container {
+        margin-top: 0 !important;   /* remove unwanted gaps */
+        padding-top: 0 !important;
+        padding: 20px;
+    }
+
+    h1, h2, h3 {
+        margin-top: 0 !important;  /* prevents navbar push */
+    }
+    .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* space between image and text */
+    font-size: 24px;
+    font-weight: bold;
+    }
+
+    .logo-img {
+    width: 90px;  /* adjust as needed */
+    height: 90px; /* maintain square logo */
+    }
+
+
+</style>
+
+</head>
+<body>
+    <header>
+    <div class="logo">
+    <img src="{% static 'logo.png' %}" alt="QuickBasket" class="logo-img">
+    </div>
+        {% if selected_address %}
+        <span style="margin-left:10px; padding:5px 10px;">
+            📍 {{ selected_address.full_name }}  {{ selected_address.pincode }}
+        </span>
+    {% else %}
+        <span style="margin-left:10px; font-size:12px; color:black;">
+            📍 No address selected
+        </span>
+    {% endif %}
+    
+    <nav>
+      <ul>
+        <li class="search-item">
+                <form action="{% url 'search' %}" method="get" class="search-form">
+                    <input type="text" name="q" placeholder="Search products..." required>
+                </form>
+        </li>
+        <li><a href="{% url 'home'%}">Home</a></li>
+        <li><a href="{% url 'cart_view'%}">Cart</a></li>
+        <li><a href="{% url 'profile' %}">Profile</a></li>
+        <li><a href="{% url 'favourite_products' %}">Favourites</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+        
+        <li class="username"> {{ user.first_name }} {{ user.last_name }}</li>
+        
+      </ul>
+    </nav>
+    </header>
+    <br>  
+    {% block content %}{% endblock %}
+<!-- AI Chat Toggle Button -->
+<div id="chat-toggle">💬</div>
+
+<!-- AI Chatbot Window -->
+<div id="chatbot-box">
+  <div id="chat-header">
+      Chat with us
+      <span id="chat-close" style="float:right; cursor:pointer;">✖</span>
+  </div>
+
+  <div id="chat-messages"></div>
+
+  <div id="chat-input-area">
+    <input id="chat-input" type="text" placeholder="Ask something..." />
+    <button id="chat-send">Send</button>
+  </div>
+</div>
+
+<style>
+/* Floating chat icon */
+#chat-toggle {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 60px;
+  height: 60px;
+  background: #0a84ff;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  z-index: 9999;
+}
+
+/* Chat window (hidden by default) */
+#chatbot-box {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  width: 320px;
+  height: 420px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.15);
+  display: none;          /* IMPORTANT */
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  z-index: 10000;
+}
+
+#chat-header {
+  background: #0a84ff;
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+}
+
+#chat-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.message { margin: 8px 0; }
+.user { text-align: right; font-weight: bold; }
+.bot { text-align: left; color: #333; }
+
+#chat-input-area {
+  display: flex;
+  border-top: 1px solid #eee;
+}
+
+#chat-input {
+  flex: 1;
+  border: none;
+  padding: 10px;
+}
+
+#chat-send {
+  border: none;
+  background: #0a84ff;
+  color: white;
+  padding: 0 15px;
+  cursor: pointer;
+}
+</style>
+
+<script>
+// Toggle open/close
+const toggle = document.getElementById("chat-toggle");
+const box = document.getElementById("chatbot-box");
+const closeBtn = document.getElementById("chat-close");
+
+toggle.onclick = () => (box.style.display = "flex");
+closeBtn.onclick = () => (box.style.display = "none");
+
+// Chat logic
+const sendBtn = document.getElementById("chat-send");
+const input = document.getElementById("chat-input");
+const messages = document.getElementById("chat-messages");
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+
+  messages.innerHTML += `<div class="message user">${text}</div>`;
+  input.value = "";
+
+  const response = await fetch("/chatbot/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  });
+
+  const data = await response.json();
+  const reply = data.reply || "Sorry, something went wrong.";
+
+  messages.innerHTML += `<div class="message bot">${reply}</div>`;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+sendBtn.onclick = sendMessage;
+input.addEventListener("keydown", e => e.key === "Enter" && sendMessage());
+</script>
+
+
+</body>
+</html>
+

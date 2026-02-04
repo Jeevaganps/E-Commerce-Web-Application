@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Order Placed</title>
+  <style>
+    :root{
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --accent: #16a34a; /* green */
+      --muted: #6b7280;
+      --btn-bg: goldenrod;
+      --btn-text: #ffffff;
+      --radius: 14px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
+      padding:24px;
+      color: #111827;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:36px;
+      max-width:720px;
+      width:100%;
+      box-shadow: 0 10px 30px rgba(18, 25, 45, 0.08);
+      display:grid;
+      grid-template-columns: 120px 1fr;
+      gap:24px;
+      align-items:center;
+    }
+
+    .icon-wrap{
+      width:120px;
+      height:120px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(180deg, rgba(22,163,74,0.12), rgba(22,163,74,0.06));
+      margin:auto;
+    }
+
+    .check {
+      width:72px;
+      height:72px;
+      display:inline-block;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size:22px;
+      letter-spacing:-0.2px;
+    }
+
+    p.lead{
+      margin:0 0 14px 0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .meta{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+
+    .chip{
+      background:#f3f4f6;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      color:#374151;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .btn-primary{
+      background:var(--btn-bg);
+      color:var(--btn-text);
+      padding:10px 16px;
+      text-decoration:none;
+      border-radius:10px;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: 0 6px 18px rgba(31,41,55,0.12);
+    }
+
+    .btn-secondary{
+      background:transparent;
+      border:1px solid #e6e9ee;
+      padding:10px 14px;
+      border-radius:10px;
+      color:var(--muted);
+      text-decoration:none;
+      font-weight:600;
+    }
+
+    @media (max-width:640px){
+      .card{ grid-template-columns: 1fr; text-align:center; padding:28px; gap:16px;}
+      .icon-wrap{ margin:0 auto;}
+      .actions{ justify-content:center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="order-heading">
+    <div class="icon-wrap" aria-hidden="true">
+      <!-- simple checkmark icon -->
+      <svg class="check" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="24" height="24" rx="8" fill="transparent"/>
+        <path d="M6.5 12.5l3.5 3.5L17.5 8" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <section>
+      <h1 id="order-heading">Order placed successfully</h1>
+      <p class="lead">Thank you for shopping with us! Your order has been received and is being processed. We'll send a confirmation email with tracking details when it ships.</p>
+
+      <div class="actions" role="group" aria-label="Post-purchase actions">
+        <!-- Home button -->
+        <a href="/" class="btn-primary" id="home-btn" title="Go to home page">
+          <!-- simple house icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 21V13h6v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Home
+        </a>
+
+        <!-- View orders button example (change link as needed) -->
+        <a href="/account/orders" class="btn-secondary" id="orders-btn">View my orders</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Optional: small script to populate order id/date if you pass them via query params -->
+  <script>
+    (function() {
+      // If the server appends ?order=... or ?date=..., this will populate the fields.
+      const params = new URLSearchParams(location.search);
+      const id = params.get('order');
+      const date = params.get('date');
+      if(id) document.getElementById('order-id').innerHTML = 'Order #: <strong>' + id + '</strong>';
+      if(date) document.getElementById('order-date').innerHTML = 'Placed: <strong>' + date + '</strong>';
+    })();
+  </script>
+</body>
+</html>
