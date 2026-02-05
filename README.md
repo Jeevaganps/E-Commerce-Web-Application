@@ -7,10 +7,11 @@ Developed a full-stack E-Commerce web application using Django and Node.js with 
 - Shopping cart
 - Payment integration
 - Order management
+- Favourites
 
 ## Technologies Used
 - Python
-- Django (specify which)
+- Django
 - Database (MySQL)
 - Payment Gateway (Stripe)
 - Node.js
